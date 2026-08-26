@@ -107,7 +107,7 @@ These pack a dummy `.app` and HTTP-GET the shipped server twice.
 ## Limits (free Apple ID)
 
 - No App Store / TestFlight / EAS signing.
-- RevenueCat / IAP will not work.
+- RevenueCat / IAP will not work. The Release IPA has no App Store RevenueCat key; startup skips `Purchases.configure` so settings still hydrate.
 - Push (`expo-notifications`) and Associated Domains may be stripped or inert after LiveContainer re-sign.
 - HealthKit may or may not survive re-sign; logging still works on device.
 - The Mac must be reachable on the tailnet while LiveContainer downloads the IPA.

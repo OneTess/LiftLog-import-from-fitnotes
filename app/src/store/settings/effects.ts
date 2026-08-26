@@ -26,6 +26,29 @@ import { addRemoteBackupEffects } from '@/store/settings/remote-backup-effects';
 
 import Purchases from 'react-native-purchases';
 import { I18nManager, Platform } from 'react-native';
+
+/** App Store CI injects EXPO_PUBLIC_REVENUECAT_* ; sideload/LiveContainer builds do not. */
+export function revenueCatApiKeyForPlatform(
+  os: string,
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
+  if (os === 'ios') {
+    return env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY;
+  }
+  if (os === 'android') {
+    return env.EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY;
+  }
+  return undefined;
+}
+
+/** No-op when the key is missing so Release sideload does not throw inside Purchases.configure. */
+export function maybeConfigurePurchases(apiKey: string | undefined): boolean {
+  if (typeof apiKey !== 'string' || apiKey.length === 0) {
+    return false;
+  }
+  Purchases.configure({ apiKey });
+  return true;
+}
 import { detectLanguageFromDateLocale } from '@/utils/language-detector';
 import { supportedLanguages } from '@/services/tolgee';
 import { initializeStoredSessionsStateSlice } from '@/store/stored-sessions';
@@ -80,16 +103,15 @@ export function applySettingsEffects(addEffect: AddEffectFn) {
       const proToken = await preferenceService.getProToken();
       dispatch(setProToken(proToken));
 
-      if (!__DEV__) {
-        if (Platform.OS === 'ios') {
-          Purchases.configure({
-            apiKey: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY!,
-          });
-        } else if (Platform.OS === 'android') {
-          Purchases.configure({
-            apiKey: process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY!,
-          });
+      try {
+        if (!__DEV__) {
+          maybeConfigurePurchases(revenueCatApiKeyForPlatform(Platform.OS));
         }
+      } catch (err) {
+        // LiveContainer / sideload IPAs have no App Store Connect RevenueCat
+        // secret. A throw here used to abort before setIsHydrated(true) and
+        // freeze the "Loading settings" screen.
+        logger.error('Purchases.configure failed; continuing without IAP', err);
       }
       // migrate pro token to a revenuecat
       if (proToken && !proToken.startsWith('$RCAnonymousID')) {
