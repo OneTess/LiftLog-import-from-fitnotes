@@ -51,6 +51,15 @@ Want to help translate? [Create an account on Weblate!](https://translate.liftlo
 3. **Android Studio** (for Android) ([Setup](https://reactnative.dev/docs/environment-setup))
 4. **Xcode** (for iOS, macOS only) ([Setup](https://reactnative.dev/docs/environment-setup?os=macos&platform=ios))
 
+### Personal iOS IPA (LiveContainer)
+
+Unsigned `iphoneos` IPA for **LiveContainer → install from URL** over this Mac’s Tailscale IPv4, no paid developer account. This checkout is frozen at tag **4.22.0** and will not pull newer upstream releases. See [docs/LiveContainer.md](./docs/LiveContainer.md).
+
+```bash
+./scripts/build-ipa.sh
+./scripts/serve-ipa.sh
+```
+
 ### Run the App
 
 ```bash

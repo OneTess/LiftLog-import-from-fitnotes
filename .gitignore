@@ -391,4 +391,12 @@ tests/LiftLog.Tests.Api/appsettings.Development.json
 
 temp/
 
+# Unsigned LiveContainer IPA output (scripts/build-ipa.sh)
+/dist/
+*.ipa
+/DerivedData/
+/.npm-cache/
+/.cocoapods/
+/.xcode-home/
+
 CLAUDE.local.md
