@@ -398,5 +398,10 @@ temp/
 /.npm-cache/
 /.cocoapods/
 /.xcode-home/
+/.bin-passthrough/
+
+# iOS Simulator app container / extra DerivedData from local sim launches
+.simulator-app-data/
+DerivedData-simulator/
 
 CLAUDE.local.md
