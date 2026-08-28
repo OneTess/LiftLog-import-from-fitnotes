@@ -11,7 +11,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ipa_pack import pack_app_to_ipa  # noqa: E402
-from ipa_serve import livecontainer_install_url, make_server  # noqa: E402
+from ipa_serve import (  # noqa: E402
+    existing_ipa_length,
+    livecontainer_install_url,
+    make_server,
+)
 
 
 class TestServeIpa(unittest.TestCase):
@@ -48,6 +52,7 @@ class TestServeIpa(unittest.TestCase):
                 )
                 self.assertIn("200", head.stdout.splitlines()[0])
                 self.assertIn("Content-Length:", head.stdout)
+                self.assertEqual(existing_ipa_length(port, "LiftLog.ipa"), len(expected))
 
                 for target in (url, prefixed):
                     proc = subprocess.run(

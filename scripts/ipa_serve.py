@@ -15,13 +15,16 @@ localhost HTTP URL instead (tests / no Tailscale).
 from __future__ import annotations
 
 import argparse
+import errno
 import os
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 from urllib.parse import quote, urlparse
 
 
@@ -76,6 +79,36 @@ def _handler_for(ipa_path: Path):
             sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
     return IpaHandler
+
+
+def listener_pids(port: int) -> List[int]:
+    try:
+        out = subprocess.check_output(
+            ["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
+            text=True,
+            timeout=5,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        return []
+    pids: List[int] = []
+    for line in out.split():
+        if line.isdigit():
+            pid = int(line)
+            if pid != os.getpid() and pid not in pids:
+                pids.append(pid)
+    return pids
+
+
+def existing_ipa_length(port: int, filename: str) -> Optional[int]:
+    req = urllib.request.Request(
+        f"http://127.0.0.1:{port}/{filename}", method="HEAD"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            raw = resp.headers.get("Content-Length")
+            return int(raw) if raw else 0
+    except (urllib.error.URLError, TimeoutError, ValueError, OSError):
+        return None
 
 
 def make_server(
@@ -147,9 +180,40 @@ def main() -> int:
     args = parser.parse_args()
     skip = os.environ.get("SKIP_TAILSCALE_SERVE", "0") == "1" or args.host is not None
     advertise = args.host or "127.0.0.1"
-    httpd, backend_url, _ = make_server(
-        args.ipa, bind=args.bind, port=args.port, advertise_host=advertise
-    )
+    try:
+        httpd, backend_url, _ = make_server(
+            args.ipa, bind=args.bind, port=args.port, advertise_host=advertise
+        )
+    except OSError as exc:
+        if exc.errno != errno.EADDRINUSE:
+            raise
+        pids = listener_pids(args.port)
+        pid_s = ", ".join(str(p) for p in pids) or "unknown"
+        have = existing_ipa_length(args.port, args.ipa.name)
+        want = args.ipa.stat().st_size
+        if have == want:
+            print(
+                f"ipa_serve: {args.bind}:{args.port} already serving this IPA "
+                f"(pid {pid_s}, {want} bytes)",
+                file=sys.stderr,
+            )
+            if skip:
+                url = ipa_http_url(advertise, args.port, args.ipa.name)
+            else:
+                url = ensure_https_ipa_url(args.port, args.ipa.name)
+            print_urls(url, livecontainer_install_url(url))
+            print(
+                f"Leave it running, or replace with: kill {pid_s} && ./scripts/serve-ipa.sh",
+                file=sys.stderr,
+            )
+            return 0
+        extra = f", HEAD Content-Length={have}" if have is not None else ", not this IPA"
+        print(
+            f"ipa_serve: {args.bind}:{args.port} already in use (pid {pid_s}){extra}",
+            file=sys.stderr,
+        )
+        print(f"Stop it with: kill {pid_s}", file=sys.stderr)
+        return 1
     actual_port = httpd.server_address[1]
     try:
         if skip:
