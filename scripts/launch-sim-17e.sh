@@ -35,9 +35,9 @@ Boot the $SIM_NAME simulator and launch LiftLog ($BUNDLE).
 
 Default (no flags): open the simulator and launch the already-installed app.
 Debug builds include expo-dev-client, which only shows LiftLog after Metro is
-up; the script starts Metro on 127.0.0.1:$METRO_PORT if needed and opens
+up; the script restarts Metro on 127.0.0.1:$METRO_PORT with --clear and opens
 $DEV_CLIENT_SCHEME://expo-development-client/?url=... so it does not sit on
-"Searching for development servers...".
+"Searching for development servers..." or reuse a stale packager.
 
 Does not uninstall or erase the simulator. --clean-build does not wipe app data.
 
@@ -243,21 +243,41 @@ print(
 ' "$METRO_PORT" "$DEV_CLIENT_SCHEME"
 }
 
+stop_metro() {
+  local pids
+  pids="$(lsof -nP -tiTCP:"$METRO_PORT" -sTCP:LISTEN 2>/dev/null || true)"
+  [ -n "$pids" ] || return 0
+  log "stopping Metro on 127.0.0.1:$METRO_PORT (pid $pids)"
+  # shellcheck disable=SC2086
+  kill $pids 2>/dev/null || true
+  local i
+  for i in $(seq 1 20); do
+    metro_running || return 0
+    sleep 0.25
+  done
+  # shellcheck disable=SC2086
+  kill -9 $pids 2>/dev/null || true
+}
+
 ensure_metro() {
   command -v curl >/dev/null || die "curl not found (needed to wait for Metro)"
   command -v npx >/dev/null || die "npx not found (needed to start Metro)"
-  if metro_running; then
-    log "Metro already running on 127.0.0.1:$METRO_PORT"
-    return 0
+  command -v lsof >/dev/null || die "lsof not found (needed to restart Metro)"
+  # Reusing a packager started during npm ci / before metro.config patches
+  # leaves a file map that claims node_modules files do not exist.
+  stop_metro
+  if command -v watchman >/dev/null; then
+    watchman watch-del "$APP_DIR" >/dev/null 2>&1 || true
   fi
   mkdir -p "$DERIVED/logs"
   local metro_log
   metro_log="$DERIVED/logs/metro.log"
+  : >"$metro_log"
   log "starting Metro on 127.0.0.1:$METRO_PORT (log: $metro_log)"
   nohup bash -c '
     cd "$0"
     export EXPO_NO_TELEMETRY=1
-    exec npx expo start --dev-client --localhost --port "$1"
+    exec npx expo start --dev-client --localhost --port "$1" --clear
   ' "$APP_DIR" "$METRO_PORT" >>"$metro_log" 2>&1 &
   local i
   for i in $(seq 1 90); do
