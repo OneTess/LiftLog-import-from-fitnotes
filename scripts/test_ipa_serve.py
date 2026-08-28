@@ -38,9 +38,20 @@ class TestServeIpa(unittest.TestCase):
                 self.assertEqual(lc_url, livecontainer_install_url(url))
                 self.assertTrue(lc_url.startswith("livecontainer://install?url="))
 
-                for _ in range(2):
+                port = httpd.server_address[1]
+                prefixed = f"http://127.0.0.1:{port}/liftlog/LiftLog.ipa"
+                head = subprocess.run(
+                    ["curl", "-fsSI", url],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                self.assertIn("200", head.stdout.splitlines()[0])
+                self.assertIn("Content-Length:", head.stdout)
+
+                for target in (url, prefixed):
                     proc = subprocess.run(
-                        ["curl", "-fsS", "-D", "-", "-o", str(td / "got.ipa"), url],
+                        ["curl", "-fsS", "-D", "-", "-o", str(td / "got.ipa"), target],
                         capture_output=True,
                         text=True,
                         check=True,

@@ -1,6 +1,6 @@
 # Personal LiveContainer IPA (LiftLog 4.22.0)
 
-Build an **unsigned** device IPA of this tree and install it on your own iPhones through **LiveContainer → install from URL**, using this Mac’s **Tailscale IPv4 HTTP URL**. No paid Apple Developer Program account, no App Store Connect, no EAS.
+Build an **unsigned** device IPA of this tree and install it on your own iPhones through **LiveContainer → install from URL**, using this Mac’s **Tailscale Serve HTTPS URL**. No paid Apple Developer Program account, no App Store Connect, no EAS.
 
 LiveContainer is already installed from **AltStore Classic**. This guide does not install or reconfigure AltStore or LiveContainer.
 
@@ -14,16 +14,10 @@ LiveContainer is already installed from **AltStore Classic**. This guide does no
 ## One-time Mac setup
 
 - Xcode (iOS device SDK), Node.js, CocoaPods (`pod`), Python 3.
-- Tailscale app logged in on this Mac **and** on the iPhone (same tailnet).
+- Tailscale app logged in on this Mac **and** on the iPhone (same tailnet), with MagicDNS + HTTPS certificates enabled (Tailscale Serve).
 - This Mac awake while you install; the phone GETs the IPA from here.
 
-Confirm the Tailscale IPv4 (CGNAT `100.x`):
-
-```bash
-ifconfig | awk '/inet 100\./ { print $2 }'
-```
-
-If the CLI is on PATH: `tailscale ip -4`. Override with `TAILSCALE_IP=100.x.x.x` if discovery fails.
+`scripts/serve-ipa.sh` talks to the Tailscale app on this Mac only. It does not use Superapp or any other repo. Deleting another project directory does not break serve.
 
 On the phone: LiveContainer → Settings → JIT-less diagnose. Import the **AltStore Classic certificate** if JIT-less signing is not already green. Official LiveContainer docs mention AltStore 2.2.1+ for cert export; Classic is what this setup uses. If import fails, that is on-device setup, not a reason to buy a developer account.
 
@@ -54,7 +48,7 @@ Keep this Mac on Tailscale. In the same repo:
 It prints:
 
 ```
-IPA_URL=http://<tailscale-ipv4>:15009/LiftLog.ipa
+IPA_URL=https://<this-mac>.<tailnet>.ts.net/LiftLog.ipa
 LIVECONTAINER_URL=livecontainer://install?url=<urlencoded IPA_URL>
 ```
 
@@ -66,11 +60,11 @@ On the iPhone (Tailscale connected):
 
 Or open `LIVECONTAINER_URL` on the phone (Safari / Notes). That is the scheme from [LiveContainer 3.3.0 / issue 372](https://github.com/LiveContainer/LiveContainer/issues/372).
 
-The HTTP URL is **`http://` + Tailscale IPv4**, not MagicDNS HTTPS. LiveContainer install-from-URL does not need a public CA.
+LiveContainer needs **HTTPS with a public CA**. The Python process binds `127.0.0.1:15009` (`IPA_HTTP_PORT`); [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) proxies `https://<magicdns>/` to that port with a Let’s Encrypt cert on `*.ts.net`. That is not a self-signed cert. A Tailscale CGNAT `http://100.x:15009/...` URL fails App Transport Security (`100.64/10` is not “local”).
+
+This Mac’s Serve `/` handler is set to the IPA port. A leftover `/` from another app on this machine is replaced. Superapp is not required.
 
 Stop the server with Ctrl-C when finished. Re-run `./scripts/serve-ipa.sh` after a new `./scripts/build-ipa.sh` to ship a replacement IPA.
-
-Port default is **15009** (`IPA_HTTP_PORT`) so it does not collide with other local HTTP servers on this Mac.
 
 ## Version pin (do not pull upstream)
 
@@ -100,9 +94,10 @@ Until you do that, keep building 4.22.0.
 python3 scripts/test_ipa_pack.py
 python3 scripts/test_ipa_serve.py
 python3 scripts/test_ipa_pin.py
+python3 scripts/test_tailscale_https.py
 ```
 
-These pack a dummy `.app` and HTTP-GET the shipped server twice.
+These pack a dummy `.app`, HTTP-GET the localhost server twice, and unit-test the Serve config merge.
 
 ## Limits (free Apple ID)
 

@@ -53,7 +53,7 @@ Want to help translate? [Create an account on Weblate!](https://translate.liftlo
 
 ### Personal iOS IPA (LiveContainer)
 
-Unsigned `iphoneos` IPA for **LiveContainer → install from URL** over this Mac’s Tailscale IPv4, no paid developer account. This checkout is frozen at tag **4.22.0** and will not pull newer upstream releases. See [docs/LiveContainer.md](./docs/LiveContainer.md).
+Unsigned `iphoneos` IPA for **LiveContainer → install from URL** over this Mac’s Tailscale Serve HTTPS URL (`https://<magicdns>/LiftLog.ipa`), no paid developer account. This checkout is frozen at tag **4.22.0** and will not pull newer upstream releases. See [docs/LiveContainer.md](./docs/LiveContainer.md).
 
 ```bash
 ./scripts/build-ipa.sh

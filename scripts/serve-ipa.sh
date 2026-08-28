@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Serve dist/LiftLog.ipa over HTTP on this Mac's Tailscale IPv4.
-# LiveContainer on the phone: plus button → install from URL, or open LIVECONTAINER_URL.
+# Serve dist/LiftLog.ipa over Tailscale Serve HTTPS for LiveContainer.
+# Python binds 127.0.0.1; Tailscale proxies https://<magicdns>/LiftLog.ipa
+# with a Let's Encrypt cert. Independent of Superapp or any other repo.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
