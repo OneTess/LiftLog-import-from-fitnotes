@@ -143,12 +143,8 @@ export default function ExerciseSection<T extends RecordedExercise>(props: Exerc
       testID="weighted-exercise"
     >
       <View>
-        <View style={{ gap: spacing[1] }}>
-          <ItemTitle
-            testID="weighted-exercise-title"
-            style={{ marginVertical: spacing[2] }}
-            title={recordedExercise.blueprint.name}
-          />
+        <View style={{ paddingTop: spacing[2], gap: 0 }}>
+          <ItemTitle testID="weighted-exercise-title" title={recordedExercise.blueprint.name} />
           {interactiveButtons}
         </View>
         {props.children}
