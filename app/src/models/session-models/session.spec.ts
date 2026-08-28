@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Duration, LocalDate, OffsetDateTime, ZoneOffset } from '@js-joda/core';
 import { v4 as uuid } from 'uuid';
-import { SessionBlueprint, CardioExerciseBlueprint } from '@/models/blueprint-models';
+import { SessionBlueprint, CardioExerciseBlueprint, WeightedExerciseBlueprint } from '@/models/blueprint-models';
 import { Weight } from '@/models/weight';
 import { Session } from '@/models/session-models/session';
 import { RestTimer } from '@/models/session-models/rest-timer';
@@ -822,6 +822,39 @@ describe('Session structural mutations', () => {
     expect(result.recordedExercises).toHaveLength(1);
     expect(result.blueprint.exercises).toHaveLength(1);
     expect(result.recordedExercises[0]!.blueprint.name).toBe('Bench');
+  });
+
+  it('withExerciseBlockMovedDown reorders recorded exercises and the blueprint together', () => {
+    const session = makeSession([
+      makeWeightedBlueprint({ name: 'Squat' }),
+      makeWeightedBlueprint({ name: 'Bench' }),
+      makeWeightedBlueprint({ name: 'Row' }),
+    ]);
+
+    const result = session.withExerciseBlockMovedDown(0);
+
+    expect(result.recordedExercises.map((ex) => ex.blueprint.name)).toEqual(['Bench', 'Squat', 'Row']);
+    expect(result.blueprint.exercises.map((ex) => ex.name)).toEqual(['Bench', 'Squat', 'Row']);
+  });
+
+  it('withExerciseBlockMovedDown keeps a superset pair together', () => {
+    const session = makeSession([
+      makeWeightedBlueprint({ name: 'Bench', supersetWithNext: true }),
+      makeWeightedBlueprint({ name: 'Flyes' }),
+      makeWeightedBlueprint({ name: 'Row' }),
+    ]);
+
+    const result = session.withExerciseBlockMovedDown(0);
+
+    expect(result.recordedExercises.map((ex) => ex.blueprint.name)).toEqual(['Row', 'Bench', 'Flyes']);
+    expect(
+      result.blueprint.exercises.map((ex) => (ex instanceof WeightedExerciseBlueprint ? ex.supersetWithNext : false)),
+    ).toEqual([false, true, false]);
+  });
+
+  it('withExerciseBlockMovedUp is a no-op at the top', () => {
+    const session = makeSession([makeWeightedBlueprint({ name: 'Squat' }), makeWeightedBlueprint({ name: 'Bench' })]);
+    expect(session.withExerciseBlockMovedUp(0)).toBe(session);
   });
 
   it('withName renames the blueprint', () => {

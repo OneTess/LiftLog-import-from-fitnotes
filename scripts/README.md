@@ -10,7 +10,7 @@ This directory contains general scripts which LiftLog uses.
 
 ## LiveContainer IPA (personal devices)
 
-Frozen at tag 4.22.0 (`scripts/livecontainer-pin`). Does not git fetch/pull.
+Display version 4.22.0-personal-1, based on official tag 4.22.0 (`scripts/livecontainer-pin`). Does not git fetch/pull.
 
 ```bash
 ./scripts/build-ipa.sh

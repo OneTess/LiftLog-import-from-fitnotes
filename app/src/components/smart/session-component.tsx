@@ -35,6 +35,12 @@ import { CardioExercise } from '@/components/presentation/workout/cardio/cardio-
 import WeightFormat from '../presentation/foundation/weight-format';
 import { formatDuration } from '@/utils/format-date';
 import { useAddExercise } from '@/hooks/useAddExercise';
+import {
+  canMoveBlockDown,
+  canMoveBlockUp,
+  indexAfterMoveDown,
+  indexAfterMoveUp,
+} from '@/models/session-models/exercise-blocks';
 
 function withRestTimerAt(session: Session, time: OffsetDateTime | undefined) {
   return session.with({ restTimer: time ? new RestTimerModel(time) : undefined });
@@ -131,6 +137,34 @@ export default function SessionComponent(props: {
       </EmptyInfo>
     ) : null;
 
+  const reorderProps = (index: number) =>
+    isReadonly
+      ? {}
+      : {
+          canMoveUp: canMoveBlockUp(session.recordedExercises, index),
+          canMoveDown: canMoveBlockDown(session.recordedExercises, index),
+          onMoveUp: () => updateSession((s) => s.withExerciseBlockMovedUp(index)),
+          onMoveDown: () => updateSession((s) => s.withExerciseBlockMovedDown(index)),
+          onReorderDrag: (steps: number) =>
+            updateSession((s) => {
+              let next = s;
+              let current = index;
+              const down = steps > 0;
+              const count = Math.abs(steps);
+              for (let n = 0; n < count; n++) {
+                const before = next;
+                next = down ? next.withExerciseBlockMovedDown(current) : next.withExerciseBlockMovedUp(current);
+                if (next === before) {
+                  break;
+                }
+                current = down
+                  ? indexAfterMoveDown(before.recordedExercises, current)
+                  : indexAfterMoveUp(before.recordedExercises, current);
+              }
+              return next;
+            }),
+        };
+
   const renderItem = (item: RecordedExercise, index: number) => {
     return match(item)
       .with(P.instanceOf(RecordedWeightedExercise), (item) => (
@@ -154,6 +188,7 @@ export default function SessionComponent(props: {
           isReadonly={isReadonly}
           showPreviousButton={!!isActiveWorkout}
           previousRecordedExercises={recentlyCompletedExercises(item.movementKey()) as RecordedWeightedExercise[]}
+          {...reorderProps(index)}
         />
       ))
       .with(P.instanceOf(RecordedCardioExercise), (item) => (
@@ -172,6 +207,7 @@ export default function SessionComponent(props: {
           isReadonly={isReadonly}
           showPreviousButton={!!isActiveWorkout}
           previousRecordedExercises={recentlyCompletedExercises(item.movementKey()) as RecordedCardioExercise[]}
+          {...reorderProps(index)}
         />
       ))
       .exhaustive();

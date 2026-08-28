@@ -21,6 +21,7 @@ class TestIpaPin(unittest.TestCase):
         root = Path(__file__).resolve().parent.parent
         pin = read_pin(root / "scripts" / "livecontainer-pin")
         self.assertEqual(pin["tag"], "4.22.0")
+        self.assertEqual(pin["display"], "4.22.0-personal-1")
         self.assertTrue(len(pin["sha"]) >= 7)
 
     def test_assert_pinned_allows_descendant_not_ancestor_gap(self) -> None:

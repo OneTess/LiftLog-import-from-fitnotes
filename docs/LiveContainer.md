@@ -1,4 +1,4 @@
-# Personal LiveContainer IPA (LiftLog 4.22.0)
+# Personal LiveContainer IPA (LiftLog 4.22.0-personal-1)
 
 Build an **unsigned** device IPA of this tree and install it on your own iPhones through **LiveContainer → install from URL**, using this Mac’s **Tailscale Serve HTTPS URL**. No paid Apple Developer Program account, no App Store Connect, no EAS.
 
@@ -6,10 +6,10 @@ LiveContainer is already installed from **AltStore Classic**. This guide does no
 
 ## What this is
 
-- Source pin: official tag **`4.22.0`** (`d1808a86d075db8f681b634700c32d415431dc38`), newer than App Store LiftLog 4.19.
+- Source pin: official tag **`4.22.0`** (`d1808a86d075db8f681b634700c32d415431dc38`), newer than App Store LiftLog 4.19. IPA marketing version is **`4.22.0-personal-1`**.
 - The IPA is **unsigned**. In JIT-less mode LiveContainer re-signs the guest with the **AltStore certificate** you imported into LiveContainer. You do not sign with a paid team.
 - Guest apps inside LiveContainer **do not consume extra Personal Team app slots**. AltStore + LiveContainer already use slots; LiftLog-as-guest does not install as a third home-screen app.
-- **This tree does not update itself.** `scripts/build-ipa.sh` never `git fetch` or `git pull`. Stay on 4.22.0 until you explicitly change `scripts/livecontainer-pin` and check out a newer tag.
+- **This tree does not update itself.** `scripts/build-ipa.sh` never `git fetch` or `git pull`. Stay based on 4.22.0 until you explicitly change `scripts/livecontainer-pin` and check out a newer tag.
 
 ## One-time Mac setup
 
@@ -73,6 +73,7 @@ Stop the server with Ctrl-C when finished. Re-run `./scripts/serve-ipa.sh` after
 ```
 tag=4.22.0
 sha=d1808a86d075db8f681b634700c32d415431dc38
+display=4.22.0-personal-1
 ```
 
 `build-ipa.sh` checks that HEAD is that commit or a **descendant** (local script commits are fine). It will not pick up LiamMorrow/LiftLog `main` or a newer GitHub release.
@@ -84,7 +85,7 @@ To move the pin **on purpose**:
 3. Edit `scripts/livecontainer-pin` to the new tag and SHA
 4. `./scripts/build-ipa.sh`
 
-Until you do that, keep building 4.22.0.
+Until you do that, keep building from 4.22.0. Increment `display=` (4.22.0-personal-2, …) for later personal releases.
 
 `gh` fork was not created (GitHub token invalid). Remotes are `origin` and `upstream` → `https://github.com/LiamMorrow/LiftLog.git`. Product changes later can stay on `feature/livecontainer-ipa`.
 

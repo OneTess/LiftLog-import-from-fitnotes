@@ -34,10 +34,11 @@ app = json.loads(pathlib.Path(sys.argv[1]).read_text())
 print(app["expo"]["version"])
 ' "$APP_DIR/app.json")"
 PIN_TAG="$(awk -F= '/^tag=/{print $2}' "$ROOT/scripts/livecontainer-pin")"
-# Show the frozen GitHub release in CFBundleShortVersionString when the Expo
-# marketing field is still 1.0.0 (true of upstream 4.22.0).
-if [ "$VERSION" = "1.0.0" ] && [ -n "$PIN_TAG" ]; then
-  VERSION="$PIN_TAG"
+PIN_DISPLAY="$(awk -F= '/^display=/{print $2}' "$ROOT/scripts/livecontainer-pin")"
+# Show the personal display version (or the frozen GitHub tag) in
+# CFBundleShortVersionString when the Expo marketing field is still 1.0.0.
+if [ "$VERSION" = "1.0.0" ]; then
+  VERSION="${PIN_DISPLAY:-$PIN_TAG}"
 fi
 BUILD="$(git -C "$ROOT" rev-list --count HEAD)"
 SHORT="$(git -C "$ROOT" rev-parse --short HEAD)"

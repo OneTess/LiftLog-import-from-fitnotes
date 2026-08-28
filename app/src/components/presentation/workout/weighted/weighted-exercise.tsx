@@ -19,6 +19,11 @@ interface WeightedExerciseProps {
   resetSetTimer: () => void;
   onEditExercise: (() => void) | undefined;
   onRemoveExercise: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
+  onReorderDrag?: (steps: number) => void;
 }
 
 export default function WeightedExercise(props: WeightedExerciseProps) {
@@ -38,6 +43,11 @@ export default function WeightedExercise(props: WeightedExerciseProps) {
       updateExercise={props.updateExercise}
       onEditExercise={props.onEditExercise}
       onRemoveExercise={props.onRemoveExercise}
+      onMoveUp={props.onMoveUp}
+      onMoveDown={props.onMoveDown}
+      canMoveUp={props.canMoveUp}
+      canMoveDown={props.canMoveDown}
+      onReorderDrag={props.onReorderDrag}
     >
       <View style={{ flexDirection: 'row', gap: spacing[2], flexWrap: 'wrap' }}>
         {recordedExercise.potentialSets.map((set, index) => (

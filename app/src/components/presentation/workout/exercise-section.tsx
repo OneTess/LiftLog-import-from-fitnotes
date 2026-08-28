@@ -10,6 +10,7 @@ import ConfirmationDialog from '@/components/presentation/foundation/confirmatio
 import ExerciseNotesDisplay from '@/components/presentation/workout/exercise-notes-display';
 import RecordedExerciseNotesEditor from '@/components/presentation/workout/recorded-exercise-notes-editor';
 import IconButton from '@/components/presentation/foundation/icon-button';
+import { ExerciseReorderControls } from '@/components/presentation/workout/exercise-reorder-controls';
 import { useRouter } from 'expo-router';
 import { getExerciseHistoryHref } from '@/components/smart/exercise-history';
 import { Updater } from '@/utils/types';
@@ -26,6 +27,11 @@ interface ExerciseSectionProps<T extends RecordedExercise> {
   updateExercise: (update: Updater<T>) => void;
   onEditExercise: (() => void) | undefined;
   onRemoveExercise: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
+  onReorderDrag?: (steps: number) => void;
 }
 
 export default function ExerciseSection<T extends RecordedExercise>(props: ExerciseSectionProps<T>) {
@@ -50,8 +56,19 @@ export default function ExerciseSection<T extends RecordedExercise>(props: Exerc
       style={{
         flexDirection: 'row',
         justifyContent: 'flex-end',
+        flexShrink: 0,
+        flexWrap: 'wrap',
       }}
     >
+      {props.onMoveUp && props.onMoveDown && props.onReorderDrag ? (
+        <ExerciseReorderControls
+          canMoveUp={!!props.canMoveUp}
+          canMoveDown={!!props.canMoveDown}
+          onMoveUp={props.onMoveUp}
+          onMoveDown={props.onMoveDown}
+          onReorderDrag={props.onReorderDrag}
+        />
+      ) : null}
       {props.showPreviousButton ? (
         <Tooltip title={t('workout.previously_completed.label')}>
           <IconButton testID="prev-exercise-btn" icon={'history'} onPress={showPrevious} />
@@ -134,11 +151,12 @@ export default function ExerciseSection<T extends RecordedExercise>(props: Exerc
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+            gap: spacing[2],
           }}
         >
           <ItemTitle
             testID="weighted-exercise-title"
-            style={{ marginVertical: spacing[2] }}
+            style={{ marginVertical: spacing[2], flex: 1 }}
             title={recordedExercise.blueprint.name}
           />
           {interactiveButtons}

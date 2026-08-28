@@ -842,6 +842,24 @@ export function filterDiff(diff: SessionBlueprintDiff, selectedChangeIds: Set<st
   };
 }
 
+export function isReorderOnlyDiff(diff: SessionBlueprintDiff): boolean {
+  return (
+    diff.reorderedExercises.length > 0 &&
+    diff.sessionChanges.length === 0 &&
+    diff.addedExercises.length === 0 &&
+    diff.removedExercises.length === 0 &&
+    diff.modifiedExercises.length === 0
+  );
+}
+
+export function withoutReorderedExercises(diff: SessionBlueprintDiff): SessionBlueprintDiff {
+  const reorderedIds = new Set(diff.reorderedExercises.map((change) => change.id));
+  return filterDiff(
+    diff,
+    new Set(diff.allChanges.filter((change) => !reorderedIds.has(change.id)).map((change) => change.id)),
+  );
+}
+
 // ============================================================================
 // Apply Selected Changes
 // ============================================================================

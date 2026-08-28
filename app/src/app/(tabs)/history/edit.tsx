@@ -19,7 +19,7 @@ export default function HistoryEditPage() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const session = useAppSelectorWithArg(selectSession, sessionId);
   const { dismissTo, push } = useRouter();
-  const finishWorkout = useFinishWorkout(sessionId);
+  const finishWorkout = useFinishWorkout(sessionId, 'history');
 
   // Resuming hands the session back to the workout in progress, so leaving this screen must not also
   // finish it - that would immediately clear it as the active workout again.

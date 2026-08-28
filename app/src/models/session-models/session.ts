@@ -24,6 +24,7 @@ import {
 import { PotentialSet, RecordedWeightedExercise } from '@/models/session-models/recorded-weighted-exercise';
 import { RestTimer } from '@/models/session-models/rest-timer';
 import { IndexOutOfBoundsError } from '@/utils/index-out-of-bounds';
+import { moveBlockDown, moveBlockUp } from '@/models/session-models/exercise-blocks';
 
 export class Session {
   constructor(
@@ -314,6 +315,27 @@ export class Session {
       recordedExercises: this.recordedExercises.toSpliced(exerciseIndex, 1),
       blueprint: this.blueprint.with({
         exercises: this.blueprint.exercises.toSpliced(exerciseIndex, 1),
+      }),
+    });
+  }
+
+  withExerciseBlockMovedUp(exerciseIndex: number): Session {
+    return this.withExercisesInOrder(moveBlockUp(this.recordedExercises, exerciseIndex));
+  }
+
+  withExerciseBlockMovedDown(exerciseIndex: number): Session {
+    return this.withExercisesInOrder(moveBlockDown(this.recordedExercises, exerciseIndex));
+  }
+
+  private withExercisesInOrder(recordedExercises: readonly RecordedExercise[]): Session {
+    if (recordedExercises === this.recordedExercises) {
+      return this;
+    }
+    const next = [...recordedExercises];
+    return this.with({
+      recordedExercises: next,
+      blueprint: this.blueprint.with({
+        exercises: next.map((exercise) => exercise.blueprint),
       }),
     });
   }

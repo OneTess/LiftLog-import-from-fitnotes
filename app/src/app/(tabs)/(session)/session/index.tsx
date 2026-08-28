@@ -13,7 +13,7 @@ import { useState } from 'react';
 export default function Index() {
   const session = useAppSelector(selectActiveSession);
   const dispatch = useDispatch();
-  const finishWorkout = useFinishWorkout(session?.id);
+  const finishWorkout = useFinishWorkout(session?.id, 'live');
   const showPostWorkoutSummary = useAppSelector((x) => x.settings.showPostWorkoutSummary);
   const keepAwake = useAppSelector((x) => x.settings.keepScreenAwakeDuringWorkout);
   const { dismissTo, push } = useRouter();

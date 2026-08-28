@@ -1,5 +1,8 @@
 # Frozen upstream commit for LiveContainer IPA builds.
 # scripts/build-ipa.sh never git fetch/pull. Edit this file yourself when you
 # intentionally move to a newer LiftLog tag, then rebuild.
+# tag/sha: official LiftLog release this tree must descend from.
+# display: marketing version on the IPA (personal fork; increment the last number).
 tag=4.22.0
 sha=d1808a86d075db8f681b634700c32d415431dc38
+display=4.22.0-personal-1

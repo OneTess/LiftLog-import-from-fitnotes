@@ -22,7 +22,7 @@ export default function PostWorkoutPage() {
   const showBackButton = !openedAfterFinishingWorkout;
   const previousComparableSession = useAppSelectorWithArg(selectPreviousComparableSession, session);
   const { dismissTo, push } = useRouter();
-  const finishWorkout = useFinishWorkout(sessionId);
+  const finishWorkout = useFinishWorkout(sessionId, 'live');
   const { t } = useTranslate();
 
   useEffect(() => {

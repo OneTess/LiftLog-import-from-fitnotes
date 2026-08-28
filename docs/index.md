@@ -31,7 +31,8 @@ work to find the docs relevant to your area, and update it whenever you add, rem
 - [RemoteBackup.md](./RemoteBackup.md) — the automatic remote backup: the app-side settings, the HTTPS
   requirement, and the contract a self-hosted backup endpoint must satisfy.
 - [LiveContainer.md](./LiveContainer.md) — personal unsigned IPA build and Tailscale Serve HTTPS
-  install via LiveContainer “install from URL” (free Apple ID, AltStore Classic). Frozen at tag 4.22.0.
+  install via LiveContainer “install from URL” (free Apple ID, AltStore Classic). Display version
+  4.22.0-personal-1, based on official tag 4.22.0.
 
 ## Generated
 
