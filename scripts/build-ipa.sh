@@ -151,7 +151,14 @@ fi
 
 python3 "$ROOT/scripts/ipa_pack.py" "$APP" "$IPA"
 unzip -t "$IPA" >/dev/null
-unzip -l "$IPA" | grep -q 'Payload/.*\.app' || die "IPA missing Payload/*.app"
+# grep -q closes the pipe on first match; unzip then SIGPIPEs and pipefail
+# treats the pipeline as failed even when Payload/*.app is present.
+python3 -c '
+import sys, zipfile
+names = zipfile.ZipFile(sys.argv[1]).namelist()
+if not any(n.startswith("Payload/") and ".app/" in n for n in names):
+    sys.exit(1)
+' "$IPA" || die "IPA missing Payload/*.app"
 
 log "IPA $IPA ($(wc -c <"$IPA" | tr -d ' ') bytes)"
 log "Next: $ROOT/scripts/serve-ipa.sh"
