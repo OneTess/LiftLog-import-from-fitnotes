@@ -49,15 +49,12 @@ export default function ExerciseSection<T extends RecordedExercise>(props: Exerc
     push(getExerciseHistoryHref(recordedExercise.blueprint), { withAnchor: true });
   };
 
-  const interactiveButtons = props.isReadonly ? (
-    <View style={{ height: 40 }}></View>
-  ) : (
+  const interactiveButtons = props.isReadonly ? null : (
     <View
       style={{
         flexDirection: 'row',
-        justifyContent: 'flex-end',
-        flexShrink: 0,
-        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
       }}
     >
       {props.onMoveUp && props.onMoveDown && props.onReorderDrag ? (
@@ -146,17 +143,10 @@ export default function ExerciseSection<T extends RecordedExercise>(props: Exerc
       testID="weighted-exercise"
     >
       <View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: spacing[2],
-          }}
-        >
+        <View style={{ gap: spacing[1] }}>
           <ItemTitle
             testID="weighted-exercise-title"
-            style={{ marginVertical: spacing[2], flex: 1 }}
+            style={{ marginVertical: spacing[2] }}
             title={recordedExercise.blueprint.name}
           />
           {interactiveButtons}
