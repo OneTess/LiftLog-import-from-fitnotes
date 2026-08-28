@@ -26,7 +26,14 @@ Unsigned `iphoneos` IPA for **LiveContainer → install from URL** over this Mac
 ./scripts/serve-ipa.sh
 ```
 
-### Run the App
+### Run the App in debug mode
+
+Run an iPhone 17e simulator
+```bash
+./scripts/launch-sim-17e.sh
+```
+
+OR
 
 ```bash
 cd app
@@ -64,12 +71,9 @@ For documentation on running the backend for local development, see [the README]
 - **Claude integration** for workout plans
 
 ### RevenueCat ([RevenueCat/](./backend/RevenueCat/))
+_guarded to not interfere with the app running inside livecontainer. RevenueCat running without the guards/limitations breaks the app when it's run inside LiveContainer._
 
 - **Client library** for in-app purchases/subscriptions
-
-### Website ([site/](./site))
-
-- **Source for liftlog.online** and privacy policy
 
 ---
 
