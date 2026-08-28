@@ -1,0 +1,87 @@
+diff --git a/node_modules/react-native-super-grid/FlatGrid.js b/node_modules/react-native-super-grid/FlatGrid.js
+index 100343c..ffb9ec5 100644
+--- a/node_modules/react-native-super-grid/FlatGrid.js
++++ b/node_modules/react-native-super-grid/FlatGrid.js
+@@ -1,9 +1,9 @@
+ import React, { forwardRef, memo, useMemo } from 'react';
+ import { FlatList } from 'react-native';
+-import { generateStyles } from './utils';
+-import useRenderRow from './hooks/useRenderRow';
+-import useDimensions from './hooks/useDimensions';
+-import useRows from './hooks/useRows';
++import { generateStyles } from './utils.js';
++import useRenderRow from './hooks/useRenderRow.js';
++import useDimensions from './hooks/useDimensions.js';
++import useRows from './hooks/useRows.js';
+ 
+ const defaultProps = {
+   fixed: false,
+diff --git a/node_modules/react-native-super-grid/SectionGrid.js b/node_modules/react-native-super-grid/SectionGrid.js
+index aa92d97..d87b35c 100644
+--- a/node_modules/react-native-super-grid/SectionGrid.js
++++ b/node_modules/react-native-super-grid/SectionGrid.js
+@@ -6,7 +6,7 @@ import {
+ } from 'react-native';
+ import {
+   generateStyles, calculateDimensions, chunkArray, getAdjustedTotalDimensions,
+-} from './utils';
++} from './utils.js';
+ 
+ const defaultProps = {
+   fixed: false,
+diff --git a/node_modules/react-native-super-grid/SimpleGrid.js b/node_modules/react-native-super-grid/SimpleGrid.js
+index 4fab92c..b2d8b76 100644
+--- a/node_modules/react-native-super-grid/SimpleGrid.js
++++ b/node_modules/react-native-super-grid/SimpleGrid.js
+@@ -1,9 +1,9 @@
+ import React, { forwardRef, memo, useMemo } from 'react';
+ import { View } from 'react-native';
+-import { generateStyles } from './utils';
+-import useRenderRow from './hooks/useRenderRow';
+-import useDimensions from './hooks/useDimensions';
+-import useRows from './hooks/useRows';
++import { generateStyles } from './utils.js';
++import useRenderRow from './hooks/useRenderRow.js';
++import useDimensions from './hooks/useDimensions.js';
++import useRows from './hooks/useRows.js';
+ 
+ const defaultProps = {
+   fixed: false,
+diff --git a/node_modules/react-native-super-grid/hooks/useDimensions.js b/node_modules/react-native-super-grid/hooks/useDimensions.js
+index e2ea0f1..ea5a85b 100644
+--- a/node_modules/react-native-super-grid/hooks/useDimensions.js
++++ b/node_modules/react-native-super-grid/hooks/useDimensions.js
+@@ -3,7 +3,7 @@ import { Dimensions } from 'react-native';
+ import {
+   getAdjustedTotalDimensions,
+   calculateDimensions,
+-} from '../utils';
++} from '../utils.js';
+ 
+ const useDimensions = (props) => {
+   const {
+diff --git a/node_modules/react-native-super-grid/hooks/useRows.js b/node_modules/react-native-super-grid/hooks/useRows.js
+index 547fdd0..3de955a 100644
+--- a/node_modules/react-native-super-grid/hooks/useRows.js
++++ b/node_modules/react-native-super-grid/hooks/useRows.js
+@@ -1,5 +1,5 @@
+ import { useCallback, useEffect } from 'react';
+-import { chunkArray } from '../utils';
++import { chunkArray } from '../utils.js';
+ 
+ const useRows = ({
+   data, itemsPerRow, invertedRow, keyExtractor, onItemsPerRowChange,
+diff --git a/node_modules/react-native-super-grid/index.js b/node_modules/react-native-super-grid/index.js
+index 5d870ff..871d152 100644
+--- a/node_modules/react-native-super-grid/index.js
++++ b/node_modules/react-native-super-grid/index.js
+@@ -1,6 +1,6 @@
+-import FlatGrid from './FlatGrid';
+-import SimpleGrid from './SimpleGrid';
+-import SectionGrid from './SectionGrid';
++import FlatGrid from './FlatGrid.js';
++import SimpleGrid from './SimpleGrid.js';
++import SectionGrid from './SectionGrid.js';
+ 
+ export { FlatGrid, SimpleGrid, SectionGrid };
+ 
